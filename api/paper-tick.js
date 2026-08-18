@@ -1,4 +1,4 @@
-const { fetchDailyOhlc } = require("../lib/dataFeed");
+const { fetchKlines } = require("../lib/dataFeed");
 const { simulate } = require("../lib/backtest");
 const store = require("../lib/store");
 
@@ -29,7 +29,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const state = await store.getOrInit();
-    const candles = await fetchDailyOhlc(coinId, "usd", 180);
+    const candles = await fetchKlines(coinId, "1h", 1000);
 
     // Full replay against the whole known history. Deterministic given the
     // same candles + strategy params, so we can safely diff against what
