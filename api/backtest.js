@@ -16,6 +16,7 @@ module.exports = async function handler(req, res) {
   const coinId = req.query?.coin || "bitcoin";
   const interval = req.query?.interval || "1h";
   const limit = Number(req.query?.limit || 5000);
+  const mode = req.query?.mode === "trend_cross" ? "trend_cross" : "rsi_pullback";
   const strategyParams = {
     ...PARAMS,
     ...(req.query?.atrMult ? { atrStopMultiple: Number(req.query.atrMult) } : {}),
@@ -27,12 +28,14 @@ module.exports = async function handler(req, res) {
       candles,
       { riskPct: 1, startEquity: 10000 },
       DEFAULT_COSTS,
-      strategyParams
+      strategyParams,
+      mode
     );
 
     return send(res, 200, {
       coinId,
       interval,
+      mode,
       candleCount: candles.length,
       atrStopMultiple: strategyParams.atrStopMultiple,
       inSample: { ...result.inSample, trades: result.inSample.trades.length },
