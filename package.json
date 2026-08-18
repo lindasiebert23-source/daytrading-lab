@@ -1,0 +1,9 @@
+{
+  "name": "daytrading-lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Research-first crypto daytrading bot: backtest before paper, paper before live.",
+  "engines": {
+    "node": ">=18"
+  }
+}
