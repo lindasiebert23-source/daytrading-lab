@@ -22,6 +22,10 @@ module.exports = async function handler(req, res) {
   const strategyParams = {
     ...baseParams,
     ...(req.query?.atrMult ? { atrStopMultiple: Number(req.query.atrMult) } : {}),
+    ...(req.query?.sidewaysMaxTrendPct
+      ? { sidewaysMaxTrendPct: Number(req.query.sidewaysMaxTrendPct) }
+      : {}),
+    ...(req.query?.bbStdDev ? { bbStdDev: Number(req.query.bbStdDev) } : {}),
   };
 
   try {
@@ -40,6 +44,8 @@ module.exports = async function handler(req, res) {
       mode,
       candleCount: candles.length,
       atrStopMultiple: strategyParams.atrStopMultiple,
+      sidewaysMaxTrendPct: strategyParams.sidewaysMaxTrendPct,
+      bbStdDev: strategyParams.bbStdDev,
       inSample: { ...result.inSample, trades: result.inSample.trades.length },
       outOfSample: { ...result.outOfSample, trades: result.outOfSample.trades.length },
       outOfSampleTrades: result.outOfSample.trades,
