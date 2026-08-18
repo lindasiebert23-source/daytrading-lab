@@ -15,7 +15,7 @@ module.exports = async function handler(req, res) {
 
   const coinId = req.query?.coin || "bitcoin";
   const interval = req.query?.interval || "1h";
-  const limit = Number(req.query?.limit || 1000);
+  const limit = Number(req.query?.limit || 5000);
   const strategyParams = {
     ...PARAMS,
     ...(req.query?.atrMult ? { atrStopMultiple: Number(req.query.atrMult) } : {}),
