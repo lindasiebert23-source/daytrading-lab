@@ -1,6 +1,6 @@
 const { fetchKlines } = require("../lib/dataFeed");
 const { walkForwardBacktest } = require("../lib/backtest");
-const { PARAMS, MR_PARAMS } = require("../lib/strategy");
+const { PARAMS, MR_PARAMS, BREAKOUT_PARAMS } = require("../lib/strategy");
 const { DEFAULT_COSTS } = require("../lib/costModel");
 
 function send(res, status, body) {
@@ -16,9 +16,12 @@ module.exports = async function handler(req, res) {
   const coinId = req.query?.coin || "bitcoin";
   const interval = req.query?.interval || "1h";
   const limit = Number(req.query?.limit || 5000);
-  const validModes = ["rsi_pullback", "trend_cross", "mean_reversion"];
+  const validModes = ["rsi_pullback", "trend_cross", "mean_reversion", "breakout"];
   const mode = validModes.includes(req.query?.mode) ? req.query.mode : "rsi_pullback";
-  const baseParams = mode === "mean_reversion" ? MR_PARAMS : PARAMS;
+  const baseParams =
+    mode === "mean_reversion" ? MR_PARAMS :
+    mode === "breakout" ? BREAKOUT_PARAMS :
+    PARAMS;
   const strategyParams = {
     ...baseParams,
     ...(req.query?.atrMult ? { atrStopMultiple: Number(req.query.atrMult) } : {}),
@@ -26,6 +29,7 @@ module.exports = async function handler(req, res) {
       ? { sidewaysMaxTrendPct: Number(req.query.sidewaysMaxTrendPct) }
       : {}),
     ...(req.query?.bbStdDev ? { bbStdDev: Number(req.query.bbStdDev) } : {}),
+    ...(req.query?.donchianPeriod ? { donchianPeriod: Number(req.query.donchianPeriod) } : {}),
   };
 
   try {
