@@ -17,6 +17,9 @@ module.exports = async function handler(req, res) {
   const interval = req.query?.interval || "1h";
   const limit = Number(req.query?.limit || 5000);
   const endTime = req.query?.endDate ? new Date(req.query.endDate).getTime() : undefined;
+  const allowedSides = req.query?.sides
+    ? req.query.sides.toUpperCase().split(",").map(s => s.trim())
+    : ["LONG", "SHORT"];
   const validModes = ["rsi_pullback", "trend_cross", "mean_reversion", "breakout"];
   const mode = validModes.includes(req.query?.mode) ? req.query.mode : "rsi_pullback";
   const baseParams =
@@ -40,13 +43,15 @@ module.exports = async function handler(req, res) {
       { riskPct: 1, startEquity: 10000 },
       DEFAULT_COSTS,
       strategyParams,
-      mode
+      mode,
+      allowedSides
     );
 
     return send(res, 200, {
       coinId,
       interval,
       mode,
+      allowedSides,
       candleCount: candles.length,
       periodStart: candles[0] ? new Date(candles[0].time).toISOString() : null,
       periodEnd: candles[candles.length - 1] ? new Date(candles[candles.length - 1].time).toISOString() : null,
