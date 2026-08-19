@@ -1,6 +1,6 @@
 const { fetchKlines } = require("../lib/dataFeed");
 const { walkForwardBacktest } = require("../lib/backtest");
-const { PARAMS, MR_PARAMS, BREAKOUT_PARAMS } = require("../lib/strategy");
+const { PARAMS, MR_PARAMS, BREAKOUT_PARAMS, RANDOM_ENTRY_PARAMS } = require("../lib/strategy");
 const { DEFAULT_COSTS } = require("../lib/costModel");
 
 function send(res, status, body) {
@@ -20,11 +20,12 @@ module.exports = async function handler(req, res) {
   const allowedSides = req.query?.sides
     ? req.query.sides.toUpperCase().split(",").map(s => s.trim())
     : ["LONG", "SHORT"];
-  const validModes = ["rsi_pullback", "trend_cross", "mean_reversion", "breakout"];
+  const validModes = ["rsi_pullback", "trend_cross", "mean_reversion", "breakout", "random_entry"];
   const mode = validModes.includes(req.query?.mode) ? req.query.mode : "rsi_pullback";
   const baseParams =
     mode === "mean_reversion" ? MR_PARAMS :
     mode === "breakout" ? BREAKOUT_PARAMS :
+    mode === "random_entry" ? RANDOM_ENTRY_PARAMS :
     PARAMS;
   const strategyParams = {
     ...baseParams,
@@ -34,6 +35,8 @@ module.exports = async function handler(req, res) {
       : {}),
     ...(req.query?.bbStdDev ? { bbStdDev: Number(req.query.bbStdDev) } : {}),
     ...(req.query?.donchianPeriod ? { donchianPeriod: Number(req.query.donchianPeriod) } : {}),
+    ...(req.query?.entryProb ? { entryProbPerBar: Number(req.query.entryProb) } : {}),
+    ...(req.query?.seed ? { seed: Number(req.query.seed) } : {}),
   };
 
   try {
